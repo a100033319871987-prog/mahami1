@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدير المهام الجامعية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f4f7f6;
+            --text-color: #2c3e50;
+            --card-bg: #ffffff;
+            --primary: #3498db;
+            --primary-hover: #2980b9;
+            --secondary: #2ecc71;
+            --danger: #e74c3c;
+            --border: #e0e0e0;
+            --shadow: 0 8px 16px rgba(0,0,0,0.05);
+            --transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a1a2e;
+            --text-color: #e6e6e6;
+            --card-bg: #16213e;
+            --primary: #0f3460;
+            --primary-hover: #e94560;
+            --secondary: #43a047;
+            --danger: #d32f2f;
+            --border: #2a3b5c;
+            --shadow: 0 8px 16px rgba(0,0,0,0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: var(--transition);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .theme-toggle {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text-color);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--primary);
+        }
+
+        .quote-card {
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            font-size: 1.1rem;
+            font-weight: 600;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .task-form {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            transition: var(--transition);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        input[type="text"], input[type="time"] {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-color);
+            color: var(--text-color);
+            transition: var(--transition);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .time-inputs {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .time-inputs .form-group {
+            flex: 1;
+        }
+
+        .btn-add {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-add:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .task-list {
+            list-style: none;
+        }
+
+        .task-item {
+            background: var(--card-bg);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .task-item.completed {
+            opacity: 0.7;
+            text-decoration: line-through;
+            border-right: 4px solid var(--secondary);
+        }
+
+        .task-info h4 {
+            margin-bottom: 0.25rem;
+        }
+
+        .task-info p {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
+        .task-actions button {
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            margin-right: 0.5rem;
+        }
+
+        .btn-complete { background-color: var(--secondary); color: white; }
+        .btn-delete { background-color: var(--danger); color: white; }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--card-bg);
+            color: var(--text-color);
+            padding: 1rem 2rem;
+            border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            font-weight: 700;
+            z-index: 1000;
+            border: 2px solid var(--secondary);
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header class="header">
+            <h2>مدير المهام الجامعية 📚</h2>
+            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">الوضع الليلي 🌙</button>
+        </header>
+
+        <div class="quote-card" id="startupQuote">
+            <!-- سيتم حقن التلميح التحفيزي هنا -->
+        </div>
+
+        <form class="task-form" onsubmit="addTask(event)">
+            <div class="form-group">
+                <label>اسم المهمة (مثال: دراسة فصل البرمجة)</label>
+                <input type="text" id="taskName" required placeholder="ما الذي تريد إنجازه؟">
+            </div>
+            <div class="time-inputs">
+                <div class="form-group">
+                    <label>وقت البداية</label>
+                    <input type="time" id="startTime" required>
+                </div>
+                <div class="form-group">
+                    <label>وقت النهاية</label>
+                    <input type="time" id="endTime" required>
+                </div>
+            </div>
+            <button type="submit" class="btn-add">إضافة المهمة</button>
+        </form>
+
+        <ul class="task-list" id="taskList">
+            <!-- سيتم إضافة المهام هنا -->
+        </ul>
+    </div>
+
+    <div class="toast" id="toastMessage"></div>
+
+    <script>
+        // --- العبارات التحفيزية ---
+        const startupQuotes = [
+            "مرحباً بك! بداية يوم جديد تعني فرصاً جديدة للتفوق. 🚀",
+            "رحلة الألف ميل تبدأ بخطوة.. ابدأ مهامك الآن! 💡",
+            "التنظيم هو نصف النجاح، استعد لتنظيم يومك الأكاديمي. 📅",
+            "لا تؤجل عمل اليوم إلى الغد.. مستقبلك يُصنع الآن. ✨"
+        ];
+
+        const completionQuotes = [
+            "عمل رائع! استمر في هذا الأداء المبهر. 🎉",
+            "مهمة أخرى أُنجزت بنجاح.. أنت تقترب من هدفك! 💪",
+            "بطل! إنجاز المهام هو طريقك نحو التفوق. 🌟",
+            "ممتاز جداً! خذ نفساً عميقاً واستعد للقادم. ☕"
+        ];
+
+        // --- تهيئة التطبيق ---
+        let tasks = [];
+        let timerInterval;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            // عرض مقولة البداية
+            const randomQuote = startupQuotes[Math.floor(Math.random() * startupQuotes.length)];
+            document.getElementById('startupQuote').innerText = randomQuote;
+            
+            // استرجاع السمة (Theme)
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeButtonText(savedTheme);
+
+            // بدء مؤقت التذكيرات
+            startReminders();
+        });
+
+        // --- إدارة الوضع الليلي والنهاري ---
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeButtonText(newTheme);
+        }
+
+        function updateThemeButtonText(theme) {
+            const btn = document.getElementById('themeToggle');
+            btn.innerText = theme === 'light' ? 'الوضع الليلي 🌙' : 'الوضع النهاري ☀️';
+        }
+
+        // --- إدارة المهام ---
+        function addTask(e) {
+            e.preventDefault();
+            const name = document.getElementById('taskName').value;
+            const start = document.getElementById('startTime').value;
+            const end = document.getElementById('endTime').value;
+
+            const task = { id: Date.now(), name, start, end, completed: false, notifiedStart: false, notifiedEnd: false };
+            tasks.push(task);
+            
+            renderTasks();
+            e.target.reset();
+            showToast("تمت إضافة المهمة بنجاح! 📌", false);
+        }
+
+        function completeTask(id) {
+            const task = tasks.find(t => t.id === id);
+            if (task && !task.completed) {
+                task.completed = true;
+                renderTasks();
+                const randomCompletion = completionQuotes[Math.floor(Math.random() * completionQuotes.length)];
+                showToast(randomCompletion, true);
+            }
+        }
+
+        function deleteTask(id) {
+            tasks = tasks.filter(t => t.id !== id);
+            renderTasks();
+        }
+
+        function renderTasks() {
+            const list = document.getElementById('taskList');
+            list.innerHTML = '';
+            tasks.sort((a, b) => a.start.localeCompare(b.start)).forEach(task => {
+                const li = document.createElement('li');
+                li.className = `task-item ${task.completed ? 'completed' : ''}`;
+                li.innerHTML = `
+                    <div class="task-info">
+                        <h4>${task.name}</h4>
+                        <p>🕒 من: ${task.start} - إلى: ${task.end}</p>
+                    </div>
+                    <div class="task-actions">
+                        ${!task.completed ? `<button class="btn-complete" onclick="completeTask(${task.id})">إنجاز ✓</button>` : ''}
+                        <button class="btn-delete" onclick="deleteTask(${task.id})">حذف ✗</button>
+                    </div>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        // --- نظام التذكيرات والإشعارات ---
+        function startReminders() {
+            if(timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                const now = new Date();
+                const currentTime = now.toTimeString().substring(0, 5); // صيغة HH:MM
+
+                tasks.forEach(task => {
+                    if (!task.completed) {
+                        if (task.start === currentTime && !task.notifiedStart) {
+                            showToast(`حان وقت البدء بمهمة: ${task.name} ⏰`, false);
+                            task.notifiedStart = true;
+                        }
+                        if (task.end === currentTime && !task.notifiedEnd) {
+                            showToast(`انتهى الوقت المخصص لمهمة: ${task.name} ⏳`, false);
+                            task.notifiedEnd = true;
+                        }
+                    }
+                });
+            }, 30000); // فحص كل 30 ثانية
+        }
+
+        function showToast(message, isSuccess) {
+            const toast = document.getElementById('toastMessage');
+            toast.innerText = message;
+            toast.style.borderColor = isSuccess ? 'var(--secondary)' : 'var(--primary)';
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 4000);
+        }
+    </script>
+</body>
+</html>

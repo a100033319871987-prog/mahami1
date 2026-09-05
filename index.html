@@ -1,389 +1,857 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" class="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مدير المهام الجامعية</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>مدير المهام الجامعية الذكي | UniTask Pro</title>
+    
+    <!-- خط القاهرة والخط الكوفي الحديث من Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Alexandria:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Canvas Confetti للاحتفال بالإنجاز -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Cairo', 'sans-serif'],
+                        display: ['Alexandria', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            200: '#c7d2fe',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                        },
+                        emeraldCustom: '#10b981',
+                        surfaceDark: '#0f172a',
+                        cardDark: '#1e293b',
+                        borderDark: '#334155',
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        :root {
-            --bg-color: #f4f7f6;
-            --text-color: #2c3e50;
-            --card-bg: #ffffff;
-            --primary: #3498db;
-            --primary-hover: #2980b9;
-            --secondary: #2ecc71;
-            --danger: #e74c3c;
-            --border: #e0e0e0;
-            --shadow: 0 8px 16px rgba(0,0,0,0.05);
-            --transition: all 0.3s ease;
-        }
-
-        [data-theme="dark"] {
-            --bg-color: #1a1a2e;
-            --text-color: #e6e6e6;
-            --card-bg: #16213e;
-            --primary: #0f3460;
-            --primary-hover: #e94560;
-            --secondary: #43a047;
-            --danger: #d32f2f;
-            --border: #2a3b5c;
-            --shadow: 0 8px 16px rgba(0,0,0,0.3);
-        }
-
+        /* أنماط وتأثيرات بصرية حركية */
         * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
             font-family: 'Cairo', sans-serif;
         }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            transition: var(--transition);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            padding: 2rem 1rem;
+        .heading-font {
+            font-family: 'Alexandria', 'Cairo', sans-serif;
         }
 
-        .container {
-            width: 100%;
-            max-width: 600px;
+        /* تخصيص شريط التمرير */
+        ::-webkit-scrollbar {
+            width: 7px;
+            height: 7px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #475569;
         }
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .theme-toggle {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            color: var(--text-color);
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: var(--transition);
-            box-shadow: var(--shadow);
-        }
-
-        .theme-toggle:hover {
-            border-color: var(--primary);
-        }
-
-        .quote-card {
-            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
-            color: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            text-align: center;
-            margin-bottom: 2rem;
-            box-shadow: var(--shadow);
-            font-size: 1.1rem;
-            font-weight: 600;
-            animation: fadeIn 0.8s ease-out;
-        }
-
-        .task-form {
-            background: var(--card-bg);
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-            margin-bottom: 2rem;
-            transition: var(--transition);
-        }
-
-        .form-group {
-            margin-bottom: 1rem;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-        }
-
-        input[type="text"], input[type="time"] {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            background: var(--bg-color);
-            color: var(--text-color);
-            transition: var(--transition);
-        }
-
-        input:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        .time-inputs {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .time-inputs .form-group {
-            flex: 1;
-        }
-
-        .btn-add {
-            width: 100%;
-            padding: 0.75rem;
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .btn-add:hover {
-            background-color: var(--primary-hover);
-        }
-
-        .task-list {
-            list-style: none;
-        }
-
-        .task-item {
-            background: var(--card-bg);
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: var(--shadow);
-            transition: var(--transition);
-            animation: slideIn 0.3s ease-out;
-        }
-
-        .task-item.completed {
-            opacity: 0.7;
-            text-decoration: line-through;
-            border-right: 4px solid var(--secondary);
-        }
-
-        .task-info h4 {
-            margin-bottom: 0.25rem;
-        }
-
-        .task-info p {
-            font-size: 0.85rem;
-            opacity: 0.8;
-        }
-
-        .task-actions button {
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: var(--transition);
-            margin-right: 0.5rem;
-        }
-
-        .btn-complete { background-color: var(--secondary); color: white; }
-        .btn-delete { background-color: var(--danger); color: white; }
-
-        /* Toast Notification */
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: var(--card-bg);
-            color: var(--text-color);
-            padding: 1rem 2rem;
-            border-radius: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            font-weight: 700;
-            z-index: 1000;
-            border: 2px solid var(--secondary);
-        }
-
-        .toast.show {
-            transform: translateX(-50%) translateY(0);
-        }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
-    </style>
-</head>
-<body>
-
-    <div class="container">
-        <header class="header">
-            <h2>مدير المهام الجامعية 📚</h2>
-            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">الوضع الليلي 🌙</button>
-        </header>
-
-        <div class="quote-card" id="startupQuote">
-            <!-- سيتم حقن التلميح التحفيزي هنا -->
-        </div>
-
-        <form class="task-form" onsubmit="addTask(event)">
-            <div class="form-group">
-                <label>اسم المهمة (مثال: دراسة فصل البرمجة)</label>
-                <input type="text" id="taskName" required placeholder="ما الذي تريد إنجازه؟">
-            </div>
-            <div class="time-inputs">
-                <div class="form-group">
-                    <label>وقت البداية</label>
-                    <input type="time" id="startTime" required>
-                </div>
-                <div class="form-group">
-                    <label>وقت النهاية</label>
-                    <input type="time" id="endTime" required>
-                </div>
-            </div>
-            <button type="submit" class="btn-add">إضافة المهمة</button>
-        </form>
-
-        <ul class="task-list" id="taskList">
-            <!-- سيتم إضافة المهام هنا -->
-        </ul>
-    </div>
-
-    <div class="toast" id="toastMessage"></div>
-
-    <script>
-        // --- العبارات التحفيزية ---
-        const startupQuotes = [
-            "مرحباً بك! بداية يوم جديد تعني فرصاً جديدة للتفوق. 🚀",
-            "رحلة الألف ميل تبدأ بخطوة.. ابدأ مهامك الآن! 💡",
-            "التنظيم هو نصف النجاح، استعد لتنظيم يومك الأكاديمي. 📅",
-            "لا تؤجل عمل اليوم إلى الغد.. مستقبلك يُصنع الآن. ✨"
-        ];
-
-        const completionQuotes = [
-            "عمل رائع! استمر في هذا الأداء المبهر. 🎉",
-            "مهمة أخرى أُنجزت بنجاح.. أنت تقترب من هدفك! 💪",
-            "بطل! إنجاز المهام هو طريقك نحو التفوق. 🌟",
-            "ممتاز جداً! خذ نفساً عميقاً واستعد للقادم. ☕"
-        ];
-
-        // --- تهيئة التطبيق ---
-        let tasks = [];
-        let timerInterval;
-
-        document.addEventListener("DOMContentLoaded", () => {
-            // عرض مقولة البداية
-            const randomQuote = startupQuotes[Math.floor(Math.random() * startupQuotes.length)];
-            document.getElementById('startupQuote').innerText = randomQuote;
-            
-            // استرجاع السمة (Theme)
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-            updateThemeButtonText(savedTheme);
-
-            // بدء مؤقت التذكيرات
-            startReminders();
-        });
-
-        // --- إدارة الوضع الليلي والنهاري ---
-        function toggleTheme() {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            updateThemeButtonText(newTheme);
-        }
-
-        function updateThemeButtonText(theme) {
-            const btn = document.getElementById('themeToggle');
-            btn.innerText = theme === 'light' ? 'الوضع الليلي 🌙' : 'الوضع النهاري ☀️';
-        }
-
-        // --- إدارة المهام ---
-        function addTask(e) {
-            e.preventDefault();
-            const name = document.getElementById('taskName').value;
-            const start = document.getElementById('startTime').value;
-            const end = document.getElementById('endTime').value;
-
-            const task = { id: Date.now(), name, start, end, completed: false, notifiedStart: false, notifiedEnd: false };
-            tasks.push(task);
-            
-            renderTasks();
-            e.target.reset();
-            showToast("تمت إضافة المهمة بنجاح! 📌", false);
-        }
-
-        function completeTask(id) {
-            const task = tasks.find(t => t.id === id);
-            if (task && !task.completed) {
-                task.completed = true;
-                renderTasks();
-                const randomCompletion = completionQuotes[Math.floor(Math.random() * completionQuotes.length)];
-                showToast(randomCompletion, true);
+        /* حركات التلاشي والظهور المنساب */
+        @keyframes slideDownFade {
+            from {
+                opacity: 0;
+                transform: translateY(-16px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
             }
         }
 
-        function deleteTask(id) {
-            tasks = tasks.filter(t => t.id !== id);
-            renderTasks();
+        .animate-enter {
+            animation: slideDownFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        function renderTasks() {
-            const list = document.getElementById('taskList');
-            list.innerHTML = '';
-            tasks.sort((a, b) => a.start.localeCompare(b.start)).forEach(task => {
-                const li = document.createElement('li');
-                li.className = `task-item ${task.completed ? 'completed' : ''}`;
-                li.innerHTML = `
-                    <div class="task-info">
-                        <h4>${task.name}</h4>
-                        <p>🕒 من: ${task.start} - إلى: ${task.end}</p>
+        /* نبض ناعم للتنبيه الحالي */
+        @keyframes subtlePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+        .pulse-active {
+            animation: subtlePulse 2s infinite ease-in-out;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-100 text-slate-800 dark:bg-surfaceDark dark:text-slate-100 min-h-screen transition-colors duration-300 flex flex-col justify-between">
+
+    <!-- الحاوية الرئيسية للتطبيق -->
+    <div class="max-w-5xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-8 flex-1">
+        
+        <!-- الشريط العلوي الترويسي الأكاديمي المطور -->
+        <header class="bg-white/80 dark:bg-cardDark/80 backdrop-blur-md border border-slate-200/80 dark:border-borderDark rounded-3xl p-5 sm:p-6 mb-8 shadow-sm">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+                <!-- هوية المنصة الجامعية -->
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-brand-600 via-indigo-600 to-blue-500 text-white flex items-center justify-center text-3xl shadow-lg shadow-brand-500/25 shrink-0 ring-4 ring-brand-50 dark:ring-brand-950/50">
+                        🎓
                     </div>
-                    <div class="task-actions">
-                        ${!task.completed ? `<button class="btn-complete" onclick="completeTask(${task.id})">إنجاز ✓</button>` : ''}
-                        <button class="btn-delete" onclick="deleteTask(${task.id})">حذف ✗</button>
+                    <div>
+                        <div class="flex flex-wrap items-center gap-2 mb-1">
+                            <h1 class="heading-font text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                                منصة إنجاز الجامعية
+                            </h1>
+                            <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60 flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                المنظّم الذكي
+                            </span>
+                            <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                                الفصل الأكاديمي النشط
+                            </span>
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                            نظام متكامل لجدولة المحاضرات، إدارة الواجبات، ومتابعة التحصيل الدراسي بتفوق
+                        </p>
+                    </div>
+                </div>
+
+                <!-- الأدوات وعناصر التحكم بالتاريخ والمظهر -->
+                <div class="flex flex-wrap items-center justify-between lg:justify-end gap-3 pt-4 lg:pt-0 border-t lg:border-t-0 border-slate-100 dark:border-borderDark">
+                    <!-- كبسولة التاريخ الحالي -->
+                    <div class="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-borderDark text-xs font-semibold text-slate-600 dark:text-slate-300">
+                        <span>🗓️</span>
+                        <span id="currentDateDisplay">جاري التحميل...</span>
+                    </div>
+
+                    <!-- زر تفعيل/كتم الصوت التنبيهي -->
+                    <button id="soundToggleBtn" onclick="toggleAudio()" title="تبديل صوت التنبيهات" 
+                            class="px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-borderDark text-slate-700 dark:text-slate-200 hover:text-brand-600 dark:hover:text-brand-400 hover:border-brand-200 transition-all flex items-center gap-2 text-xs font-semibold shadow-xs">
+                        <span id="soundIcon">🔔</span>
+                        <span id="soundText">الصوت مُفعل</span>
+                    </button>
+
+                    <!-- زر تبديل الوضع (النهاري الافتراضي / الليلي) -->
+                    <button id="themeToggleBtn" onclick="toggleTheme()" title="تبديل بين الوضع النهاري والليلي"
+                            class="px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-borderDark text-slate-700 dark:text-slate-200 hover:text-amber-600 dark:hover:text-amber-400 hover:border-amber-300 transition-all flex items-center gap-2 text-xs font-semibold shadow-xs">
+                        <span id="themeIcon">🌙</span>
+                        <span id="themeText">الوضع الليلي</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- بطاقة الإشراقة الإدارية والتلميح التشجيعي (تتغير تلقائياً مع كل تشغيل أو نقرة) -->
+        <section id="startupBanner" class="relative overflow-hidden mb-6 p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-indigo-600 via-brand-600 to-blue-700 text-white shadow-xl shadow-brand-500/15 transition-all">
+            <!-- زخرفة خلفية هندسية -->
+            <div class="absolute -right-6 -bottom-6 w-32 h-32 rounded-full bg-white/10 blur-2xl pointer-events-none"></div>
+            <div class="absolute -left-6 -top-6 w-32 h-32 rounded-full bg-indigo-400/20 blur-xl pointer-events-none"></div>
+
+            <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div class="flex items-start gap-3.5">
+                    <div class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-xl shrink-0 mt-0.5">
+                        💡
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span id="tipCategory" class="text-xs font-bold tracking-wider uppercase bg-white/25 backdrop-blur-md px-2.5 py-0.5 rounded-full text-indigo-50">
+                                توجيه أكاديمي وإداري
+                            </span>
+                            <span class="text-xs text-indigo-200">| إشراقة البداية</span>
+                        </div>
+                        <p id="tipText" class="text-sm sm:text-base font-semibold leading-relaxed text-indigo-50 max-w-3xl">
+                            جاري تهيئة تلميحك الإداري...
+                        </p>
+                    </div>
+                </div>
+
+                <button onclick="displayNextHint()" class="shrink-0 text-xs font-semibold px-3 py-2 bg-white/15 hover:bg-white/25 active:scale-95 border border-white/20 rounded-xl transition-all flex items-center gap-1.5">
+                    <span>🔄</span>
+                    <span>تلميح آخر</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- مؤشرات الإنجاز الأكاديمي السريع -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
+            <div class="bg-white dark:bg-cardDark p-4 rounded-2xl border border-slate-200 dark:border-borderDark shadow-sm">
+                <div class="text-slate-500 dark:text-slate-400 text-xs font-semibold mb-1">إجمالي المهام</div>
+                <div id="statTotal" class="heading-font text-2xl font-bold text-slate-800 dark:text-slate-100">0</div>
+            </div>
+            <div class="bg-white dark:bg-cardDark p-4 rounded-2xl border border-slate-200 dark:border-borderDark shadow-sm">
+                <div class="text-emerald-600 dark:text-emerald-400 text-xs font-semibold mb-1">المهام المنجزة</div>
+                <div id="statCompleted" class="heading-font text-2xl font-bold text-emerald-600 dark:text-emerald-400">0</div>
+            </div>
+            <div class="bg-white dark:bg-cardDark p-4 rounded-2xl border border-slate-200 dark:border-borderDark shadow-sm">
+                <div class="text-amber-600 dark:text-amber-400 text-xs font-semibold mb-1">قيد الانتظار / التنفيذ</div>
+                <div id="statPending" class="heading-font text-2xl font-bold text-amber-600 dark:text-amber-400">0</div>
+            </div>
+            <div class="bg-white dark:bg-cardDark p-4 rounded-2xl border border-slate-200 dark:border-borderDark shadow-sm flex flex-col justify-between">
+                <div class="flex items-center justify-between text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
+                    <span>نسبة الإنجاز</span>
+                    <span id="statPercentText" class="font-bold text-brand-600 dark:text-brand-400">0%</span>
+                </div>
+                <div class="w-full bg-slate-100 dark:bg-slate-700/60 rounded-full h-2.5 overflow-hidden">
+                    <div id="statProgressBar" class="bg-brand-600 dark:bg-brand-500 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- قسم إضافة مهمة جديدة مع الجدول الزمني -->
+        <section class="bg-white dark:bg-cardDark rounded-3xl border border-slate-200 dark:border-borderDark p-5 sm:p-6 shadow-sm mb-8">
+            <h2 class="heading-font text-lg font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-brand-500 inline-block"></span>
+                <span>إدراج مهمة دراسية جديدة</span>
+            </h2>
+
+            <form id="taskForm" onsubmit="handleAddTask(event)" class="space-y-4">
+                <!-- عنوان المهمة والتصنيف الدراسي -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">عنوان المهمة أو الواجب الدراسي</label>
+                        <input type="text" id="taskTitle" required placeholder="مثال: حل مسائل تفاضل وتكامل 2 / مراجعة شبكات الحاسوب"
+                               class="w-full px-4 py-2.5 rounded-xl text-sm border border-slate-200 dark:border-borderDark bg-slate-50 dark:bg-slate-800/80 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">المادة / المجال</label>
+                        <input type="text" id="taskCourse" placeholder="مثال: ذكاء اصطناعي، فيزياء..." 
+                               class="w-full px-4 py-2.5 rounded-xl text-sm border border-slate-200 dark:border-borderDark bg-slate-50 dark:bg-slate-800/80 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-500 transition">
+                    </div>
+                </div>
+
+                <!-- الأوقات والأولوية -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5 flex items-center justify-between">
+                            <span>وقت البداية</span>
+                            <span class="text-[11px] text-brand-600 dark:text-brand-400 font-normal">⏰ موعد التذكير</span>
+                        </label>
+                        <input type="time" id="taskStartTime" required
+                               class="w-full px-3 py-2.5 rounded-xl text-sm border border-slate-200 dark:border-borderDark bg-slate-50 dark:bg-slate-800/80 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-500 transition">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5 flex items-center justify-between">
+                            <span>وقت النهاية</span>
+                            <span class="text-[11px] text-red-500 font-normal">⏳ مهلة الإنجاز</span>
+                        </label>
+                        <input type="time" id="taskEndTime" required
+                               class="w-full px-3 py-2.5 rounded-xl text-sm border border-slate-200 dark:border-borderDark bg-slate-50 dark:bg-slate-800/80 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-500 transition">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">درجة الأهمية / الأولوية</label>
+                        <select id="taskPriority" 
+                                class="w-full px-3 py-2.5 rounded-xl text-sm border border-slate-200 dark:border-borderDark bg-slate-50 dark:bg-slate-800/80 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-500 transition cursor-pointer">
+                            <option value="high">🔴 أولوية قصوى (عاجل وهام)</option>
+                            <option value="medium" selected>🟡 أولوية متوسطة (اعتيادي)</option>
+                            <option value="low">🟢 أولوية مرنة (مراجعة وقراءة)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- زر الحفظ والإضافة -->
+                <div class="pt-2 flex justify-end">
+                    <button type="submit" 
+                            class="w-full sm:w-auto px-6 py-3 rounded-xl bg-brand-600 hover:bg-brand-700 active:scale-98 text-white font-bold text-sm shadow-md shadow-brand-500/20 hover:shadow-lg transition flex items-center justify-center gap-2">
+                        <span>➕</span>
+                        <span>إدراج في جدول اليوم</span>
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- قسم تصفية وعرض المهام المجدولة -->
+        <section class="space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="flex items-center gap-2">
+                    <h2 class="heading-font text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                        <span>📋</span>
+                        <span>الجدول الزمني لمهام اليوم</span>
+                    </h2>
+                    <span id="activeClock" class="text-xs px-2.5 py-1 bg-slate-200/80 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg font-mono">--:--</span>
+                </div>
+
+                <!-- أزرار التصفية السريعة -->
+                <div class="flex items-center bg-slate-200/70 dark:bg-slate-800 p-1 rounded-xl text-xs font-semibold">
+                    <button onclick="setFilter('all')" id="filterAll" class="px-3 py-1.5 rounded-lg bg-white dark:bg-cardDark text-slate-800 dark:text-white shadow-xs transition">الكل</button>
+                    <button onclick="setFilter('pending')" id="filterPending" class="px-3 py-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:text-slate-900 transition">المتبقية</button>
+                    <button onclick="setFilter('completed')" id="filterCompleted" class="px-3 py-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:text-slate-900 transition">المنجزة</button>
+                </div>
+            </div>
+
+            <!-- الحالة الفارغة في حال عدم وجود مهام -->
+            <div id="emptyState" class="hidden py-14 px-4 text-center rounded-3xl bg-white dark:bg-cardDark border border-dashed border-slate-200 dark:border-borderDark">
+                <div class="text-5xl mb-3">🎓✨</div>
+                <h3 class="font-bold text-slate-700 dark:text-slate-200 text-base mb-1">جدولك خالٍ حالياً!</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
+                    قم بإضافة أول واجب، محاضرة، أو جلسة دراسية للاستفادة من التذكيرات الذكية والمتابعة الدقيقة.
+                </p>
+            </div>
+
+            <!-- قائمة المهام الديناميكية -->
+            <ul id="tasksContainer" class="space-y-3">
+                <!-- يتم ملء المهام بواسطة الجافاسكربت -->
+            </ul>
+        </section>
+    </div>
+
+    <!-- التذييل الأكاديمي الشامل والأنيق (Footer) -->
+    <footer class="mt-14 bg-white dark:bg-cardDark border-t border-slate-200 dark:border-borderDark transition-colors duration-300">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pb-6 border-b border-slate-100 dark:border-borderDark">
+                
+                <!-- العمود الأول: التعريف والغرض -->
+                <div class="space-y-2">
+                    <div class="flex items-center gap-2 font-bold text-slate-800 dark:text-slate-200 text-sm">
+                        <span>🎓</span>
+                        <span>منظومة النجاح الجامعي</span>
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                        أداة مبنية وفق أحدث استراتيجيات إدارة الوقت (مصفوفة آيزنهاور، تقنية بومودورو) لمساعدة الطلاب على التخلص من التسويف وضمان التفوق الفصلي.
+                    </p>
+                </div>
+
+                <!-- العمود الثاني: ركائز الدراسة الفعالة -->
+                <div class="space-y-2">
+                    <h4 class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                        قواعد ذهبية للتحصيل
+                    </h4>
+                    <ul class="text-xs text-slate-500 dark:text-slate-400 space-y-1.5">
+                        <li class="flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-brand-500"></span>
+                            <span>ابدأ دائماً بالمهمة الأكثر وزناً وأهمية.</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                            <span>قسّم المشاريع الكبيرة لمهام صغيرة محددة بوقت.</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                            <span>الراحة المنتظمة تضاعف سعة الاستيعاب والتركيز.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- العمود الثالث: مؤشر الخصوصية والأمان -->
+                <div class="space-y-2">
+                    <h4 class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                        حفظ البيانات والخصوصية
+                    </h4>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                        جميع جداولك وملاحظاتك الدراسية تُحفظ مباشرة وبشكل آمن في متصفحك الشخصي دون الحاجة لحساب أو اتصال خارجي.
+                    </p>
+                    <div class="pt-1 flex items-center gap-2 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                        <span>🔒</span>
+                        <span>الوضع المحلي الآمن نشط</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- السطر السفلي لحقوق الامتياز والتطوير -->
+            <div class="pt-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400 dark:text-slate-500">
+                <div>
+                    جميع الحقوق محفوظة &copy; منصة إنجاز الجامعية &bull; بالتنظيم والإصرار تصنع تفوقك 🚀
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[11px] font-semibold">
+                        الوضع الافتراضي: الفاتح ☀️
+                    </span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- صندوق الإشعار المنبثق الداخلي (Toast) كبديل راقٍ لـ alert() -->
+    <div id="toastBox" class="fixed bottom-5 left-1/2 -translate-x-1/2 max-w-md w-[92%] sm:w-auto z-50 pointer-events-none opacity-0 translate-y-8 transition-all duration-300">
+        <div id="toastContent" class="bg-white dark:bg-cardDark text-slate-800 dark:text-slate-100 px-5 py-3.5 rounded-2xl shadow-2xl border border-slate-200 dark:border-borderDark flex items-center gap-3">
+            <span id="toastIcon" class="text-2xl shrink-0">🔔</span>
+            <div class="flex-1">
+                <h4 id="toastTitle" class="text-xs font-bold text-slate-400 dark:text-slate-400">تنبيه ذكي</h4>
+                <p id="toastMessage" class="text-sm font-semibold leading-snug">نص الإشعار يظهر هنا</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ========================================================
+           قاعدة بيانات التلميحات الإدارية والأكاديمية والتحفيزية
+           (تظهر نصيحة مختلفة تشجيعية عند كل تشغيل للتطبيق)
+        ======================================================== */
+        const startupWisdomList = [
+            {
+                category: "إدارة الوقت والأولويات",
+                text: "طبق قاعدة 20/80 (باريتو): 20% من المواد والواجبات الهامة تحقق 80% من نتائجك وتفوقك الفصلي."
+            },
+            {
+                category: "تقنية دراسية فعالة",
+                text: "استخدم تقنية الاسترجاع النشط (Active Recall): اختبر نفسك بالأسئلة بدلاً من مجرد إعادة قراءة الملخصات."
+            },
+            {
+                category: "علم الإنجاز والتغلب على التسويف",
+                text: "قاعدة الخمس ثوانٍ: عندما تشعر بالتردد في بدء المذاكرة، عد تنازلياً 5-4-3-2-1 وابدأ فوراً بدون مفاوضة عقلك."
+            },
+            {
+                category: "توازن الطاقة والتركيز",
+                text: "تقنية بومودورو: ذاكر بتركيز تام لمدة 25 دقيقة، ثم خذ استراحة 5 دقائق لتجديد طاقتك الذهنية."
+            },
+            {
+                category: "تحفيز وإرادة",
+                text: "التعب يزول والدرجات والتفوق يبقى أثره. كل ساعة استثمار تقضيها اليوم تبني مستقبلك المهني غداً."
+            },
+            {
+                category: "مصفوفة آيزنهاور",
+                text: "فرّق دائماً بين 'العاجل' و'المهم'. لا تجعل الواجبات تتراكم حتى تتحول جميعها إلى حالات طوارئ مضغوطة."
+            },
+            {
+                category: "التفكير الاستراتيجي الجامعي",
+                text: "احرص على إنهاء متطلبات الأسبوع قبل عطلة نهاية الأسبوع لتستمتع براحة ذهنية حقيقية دون وخز الضمير."
+            },
+            {
+                category: "شحذ الهمة",
+                text: "أفضل طريقة للبدء هي التوقف عن الكلام والبدء في العمل. افتح دفترك الآن واخطُ الخطوة الأولى!"
+            }
+        ];
+
+        /* عبارات التحفيز الفورية عند إتمام كل مهمة */
+        const completionCheerQuotes = [
+            "عمل استثنائي! خطوة جبارة تقربك من معدلك المستهدف 🎓🌟",
+            "مهمة أُغلقت بنجاح! طاقة إنجازك اليوم تثير الإعجاب 💪✨",
+            "رائع جداً! استمر بهذا الزخم؛ النجاح عادة وليس صدفة 🚀",
+            "أحسنت صنعاً! خذ استراحة قصيرة، فالعقل المتجدد أسرع في الاستيعاب ☕",
+            "بطل! إنجازك لهذه المهمة يزيل عبئاً كبيراً عن كاهلك.. إلى الأمام 🎯"
+        ];
+
+        /* ========================================================
+           حالة التطبيق العامة وتخزين البيانات
+        ======================================================== */
+        let tasks = [];
+        let currentFilter = 'all';
+        let soundEnabled = true;
+        let audioCtx = null;
+        let clockTimer = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadTheme();
+            renderCurrentDate();
+            loadStoredTasks();
+            displayNextHint();
+            renderTaskList();
+            updateStats();
+            startLiveClockAndReminders();
+        });
+
+        function renderCurrentDate() {
+            const dateElem = document.getElementById('currentDateDisplay');
+            if (!dateElem) return;
+            try {
+                const now = new Date();
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                dateElem.innerText = now.toLocaleDateString('ar-EG', options);
+            } catch (e) {
+                dateElem.innerText = new Date().toLocaleDateString();
+            }
+        }
+
+        /* إدارة السمة مع تأكيد الوضع الفاتح (Light Mode) كوضع افتراضي رئيسي */
+        function loadTheme() {
+            // اعتماد الوضع الفاتح كافتراضي إذا لم يتم حفظ اختيار مسبق
+            const savedTheme = localStorage.getItem('unitask_theme') || 'light';
+            const html = document.documentElement;
+            const icon = document.getElementById('themeIcon');
+            const text = document.getElementById('themeText');
+
+            if (savedTheme === 'dark') {
+                html.classList.add('dark');
+                html.classList.remove('light');
+                if (icon) icon.innerText = '☀️';
+                if (text) text.innerText = 'الوضع الفاتح';
+            } else {
+                // تأكيد الوضع الفاتح كإعداد افتراضي
+                html.classList.remove('dark');
+                html.classList.add('light');
+                localStorage.setItem('unitask_theme', 'light');
+                if (icon) icon.innerText = '🌙';
+                if (text) text.innerText = 'الوضع الليلي';
+            }
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const isDark = html.classList.contains('dark');
+            const icon = document.getElementById('themeIcon');
+            const text = document.getElementById('themeText');
+
+            if (isDark) {
+                html.classList.remove('dark');
+                html.classList.add('light');
+                localStorage.setItem('unitask_theme', 'light');
+                icon.innerText = '🌙';
+                text.innerText = 'الوضع الليلي';
+                showToast('تم تفعيل الوضع الفاتح (الافتراضي)', 'المظهر', '☀️');
+            } else {
+                html.classList.add('dark');
+                html.classList.remove('light');
+                localStorage.setItem('unitask_theme', 'dark');
+                icon.innerText = '☀️';
+                text.innerText = 'الوضع الفاتح';
+                showToast('تم تفعيل الوضع الليلي', 'المظهر', '🌙');
+            }
+        }
+
+        function displayNextHint() {
+            const index = Math.floor(Math.random() * startupWisdomList.length);
+            const chosen = startupWisdomList[index];
+            const catElem = document.getElementById('tipCategory');
+            const textElem = document.getElementById('tipText');
+
+            catElem.innerText = chosen.category;
+            textElem.innerText = chosen.text;
+
+            // لمسة حركة انسيابية للبطاقة
+            const banner = document.getElementById('startupBanner');
+            banner.classList.remove('animate-enter');
+            void banner.offsetWidth; // إعادة تشغيل الأنيميشن
+            banner.classList.add('animate-enter');
+        }
+
+        function loadStoredTasks() {
+            const stored = localStorage.getItem('unitask_items');
+            if (stored) {
+                try {
+                    tasks = JSON.parse(stored);
+                } catch (e) {
+                    tasks = [];
+                }
+            } else {
+                // مهام نموذجية استرشادية للبداية
+                tasks = [
+                    {
+                        id: 'task-demo-1',
+                        title: 'مراجعة ومناقشة تقرير مشروع التخرج',
+                        course: 'مشروع التخرج',
+                        startTime: '09:00',
+                        endTime: '11:00',
+                        priority: 'high',
+                        completed: false,
+                        notifiedStart: true,
+                        notifiedEnd: false
+                    },
+                    {
+                        id: 'task-demo-2',
+                        title: 'حل واجب تحليل وتصميم الخوارزميات (المسألة 4 و 5)',
+                        course: 'خوارزميات 2',
+                        startTime: '13:30',
+                        endTime: '15:00',
+                        priority: 'medium',
+                        completed: false,
+                        notifiedStart: false,
+                        notifiedEnd: false
+                    }
+                ];
+                saveTasks();
+            }
+        }
+
+        function saveTasks() {
+            localStorage.setItem('unitask_items', JSON.stringify(tasks));
+        }
+
+        function handleAddTask(event) {
+            event.preventDefault();
+
+            const titleInput = document.getElementById('taskTitle');
+            const courseInput = document.getElementById('taskCourse');
+            const startInput = document.getElementById('taskStartTime');
+            const endInput = document.getElementById('taskEndTime');
+            const priorityInput = document.getElementById('taskPriority');
+
+            const title = titleInput.value.trim();
+            const course = courseInput.value.trim() || 'عام / جامعي';
+            const startTime = startInput.value;
+            const endTime = endInput.value;
+            const priority = priorityInput.value;
+
+            if (!title || !startTime || !endTime) return;
+
+            // التحقق من أن وقت النهاية بعد وقت البداية
+            if (endTime <= startTime) {
+                showToast('تنبيه: يُفضل أن يكون وقت نهاية المهمة لاحقاً لوقت بدايتها!', 'ملاحظة زمنية', '⚠️');
+            }
+
+            const newTask = {
+                id: 'task-' + Date.now(),
+                title: title,
+                course: course,
+                startTime: startTime,
+                endTime: endTime,
+                priority: priority,
+                completed: false,
+                notifiedStart: false,
+                notifiedEnd: false
+            };
+
+            tasks.push(newTask);
+            saveTasks();
+            renderTaskList();
+            updateStats();
+
+            // تفريغ المدخلات بعد الإضافة
+            titleInput.value = '';
+            courseInput.value = '';
+            
+            showToast(`تم جدولتها من ${startTime} حتى ${endTime}`, 'أُضيفت المهمة بنجاح', '📅');
+            playChime('start');
+        }
+
+        function toggleTaskCompletion(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            task.completed = !task.completed;
+            saveTasks();
+            renderTaskList();
+            updateStats();
+
+            if (task.completed) {
+                // إطلاق تأثير القصاصات الملونة (Confetti) احتفالاً بالإنجاز
+                if (typeof confetti === 'function') {
+                    confetti({
+                        particleCount: 50,
+                        spread: 60,
+                        origin: { y: 0.75 }
+                    });
+                }
+                
+                playChime('complete');
+                const randomCheer = completionCheerQuotes[Math.floor(Math.random() * completionCheerQuotes.length)];
+                showToast(randomCheer, 'إنجاز رائع!', '🎉');
+            }
+        }
+
+        function deleteTask(taskId) {
+            tasks = tasks.filter(t => t.id !== taskId);
+            saveTasks();
+            renderTaskList();
+            updateStats();
+            showToast('تم حذف المهمة من جدولك اليومي', 'تم الحذف', '🗑️');
+        }
+
+        function setFilter(filterType) {
+            currentFilter = filterType;
+            const buttons = {
+                all: document.getElementById('filterAll'),
+                pending: document.getElementById('filterPending'),
+                completed: document.getElementById('filterCompleted')
+            };
+
+            Object.keys(buttons).forEach(key => {
+                if (key === filterType) {
+                    buttons[key].className = 'px-3 py-1.5 rounded-lg bg-white dark:bg-cardDark text-slate-900 dark:text-white shadow-xs font-bold transition';
+                } else {
+                    buttons[key].className = 'px-3 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition';
+                }
+            });
+
+            renderTaskList();
+        }
+
+        function renderTaskList() {
+            const container = document.getElementById('tasksContainer');
+            const emptyState = document.getElementById('emptyState');
+            container.innerHTML = '';
+
+            let filtered = tasks;
+            if (currentFilter === 'pending') {
+                filtered = tasks.filter(t => !t.completed);
+            } else if (currentFilter === 'completed') {
+                filtered = tasks.filter(t => t.completed);
+            }
+
+            if (filtered.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            // ترتيب المهام حسب وقت البداية
+            const sortedTasks = [...filtered].sort((a, b) => a.startTime.localeCompare(b.startTime));
+            const currentTimeStr = getCurrentTimeString();
+
+            sortedTasks.forEach(task => {
+                const isOngoing = !task.completed && (currentTimeStr >= task.startTime && currentTimeStr <= task.endTime);
+                
+                // الألوان حسب الأولوية
+                let priorityBadge = '';
+                if (task.priority === 'high') {
+                    priorityBadge = '<span class="text-[11px] font-bold px-2 py-0.5 rounded-md bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300">أولوية قصوى</span>';
+                } else if (task.priority === 'medium') {
+                    priorityBadge = '<span class="text-[11px] font-bold px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300">أولوية متوسطة</span>';
+                } else {
+                    priorityBadge = '<span class="text-[11px] font-bold px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300">مرنة</span>';
+                }
+
+                const li = document.createElement('li');
+                li.className = `p-4 sm:p-5 rounded-2xl border transition-all duration-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+                    task.completed
+                        ? 'bg-slate-50/80 dark:bg-cardDark/40 border-slate-200 dark:border-borderDark opacity-65'
+                        : isOngoing
+                        ? 'bg-white dark:bg-cardDark border-brand-500 shadow-md shadow-brand-500/10 ring-1 ring-brand-500/30'
+                        : 'bg-white dark:bg-cardDark border-slate-200 dark:border-borderDark shadow-xs hover:shadow-md'
+                }`;
+
+                li.innerHTML = `
+                    <div class="flex items-start sm:items-center gap-3.5 flex-1">
+                        <!-- زر الإنجاز الدائري -->
+                        <button onclick="toggleTaskCompletion('${task.id}')" title="${task.completed ? 'إلغاء الإنجاز' : 'تعليم كمكتمل'}"
+                                class="mt-1 sm:mt-0 w-7 h-7 rounded-xl border-2 flex items-center justify-center shrink-0 transition-transform active:scale-90 ${
+                                    task.completed 
+                                    ? 'bg-emeraldCustom border-emeraldCustom text-white' 
+                                    : 'border-slate-300 dark:border-slate-600 hover:border-brand-500'
+                                }">
+                            ${task.completed ? '<svg class="w-4 h-4 stroke-[3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>' : ''}
+                        </button>
+
+                        <div class="flex-1">
+                            <div class="flex flex-wrap items-center gap-2 mb-1">
+                                <h3 class="font-bold text-base text-slate-800 dark:text-slate-100 ${task.completed ? 'line-through text-slate-400 dark:text-slate-500' : ''}">
+                                    ${task.title}
+                                </h3>
+                                ${priorityBadge}
+                                ${isOngoing ? '<span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-brand-500 text-white animate-pulse">جارية الآن ⏳</span>' : ''}
+                            </div>
+
+                            <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
+                                <span class="bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-lg font-medium">
+                                    📚 ${task.course}
+                                </span>
+                                <span class="font-mono bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-lg flex items-center gap-1.5">
+                                    <span class="text-emerald-500 font-bold">بدء:</span> ${task.startTime}
+                                    <span class="text-slate-300 dark:text-slate-600">|</span>
+                                    <span class="text-rose-500 font-bold">نهاية:</span> ${task.endTime}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- أزرار الإجراءات السريعة -->
+                    <div class="flex items-center justify-end gap-2 border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-100 dark:border-borderDark">
+                        <button onclick="toggleTaskCompletion('${task.id}')" class="text-xs px-3 py-1.5 rounded-xl font-semibold border ${
+                            task.completed
+                            ? 'border-slate-200 dark:border-borderDark text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
+                            : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/50 hover:bg-emerald-100'
+                        } transition">
+                            ${task.completed ? 'إرجاع للمتبقي' : 'تم الإنجاز ✓'}
+                        </button>
+                        <button onclick="deleteTask('${task.id}')" title="حذف المهمة"
+                                class="p-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl transition">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
                     </div>
                 `;
-                list.appendChild(li);
+
+                container.appendChild(li);
             });
         }
 
-        // --- نظام التذكيرات والإشعارات ---
-        function startReminders() {
-            if(timerInterval) clearInterval(timerInterval);
-            timerInterval = setInterval(() => {
-                const now = new Date();
-                const currentTime = now.toTimeString().substring(0, 5); // صيغة HH:MM
+        function updateStats() {
+            const total = tasks.length;
+            const completed = tasks.filter(t => t.completed).length;
+            const pending = total - completed;
+            const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+            document.getElementById('statTotal').innerText = total;
+            document.getElementById('statCompleted').innerText = completed;
+            document.getElementById('statPending').innerText = pending;
+            document.getElementById('statPercentText').innerText = percent + '%';
+            document.getElementById('statProgressBar').style.width = percent + '%';
+        }
+
+        function getCurrentTimeString() {
+            const now = new Date();
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            return `${h}:${m}`;
+        }
+
+        function startLiveClockAndReminders() {
+            if (clockTimer) clearInterval(clockTimer);
+
+            const checkAndTick = () => {
+                const timeStr = getCurrentTimeString();
+                const clockElem = document.getElementById('activeClock');
+                if (clockElem) {
+                    clockElem.innerText = `الوقت الحالي: ${timeStr}`;
+                }
+
+                // فحص مواعيد بدء وانتهاء المهام للتذكير
+                let updated = false;
 
                 tasks.forEach(task => {
                     if (!task.completed) {
-                        if (task.start === currentTime && !task.notifiedStart) {
-                            showToast(`حان وقت البدء بمهمة: ${task.name} ⏰`, false);
+                        // تذكير وقت البداية
+                        if (task.startTime === timeStr && !task.notifiedStart) {
+                            showToast(`حان الآن موعد البدء بمهمة: "${task.title}" (${task.course})`, 'تذكير بدء المهمة ⏰', '🎯');
+                            playChime('start');
                             task.notifiedStart = true;
+                            updated = true;
                         }
-                        if (task.end === currentTime && !task.notifiedEnd) {
-                            showToast(`انتهى الوقت المخصص لمهمة: ${task.name} ⏳`, false);
+                        // تذكير وقت النهاية
+                        if (task.endTime === timeStr && !task.notifiedEnd) {
+                            showToast(`شارف الوقت المخصص لمهمة: "${task.title}" على الانتهاء!`, 'تنبيه المهلة ⏳', '⚠️');
+                            playChime('deadline');
                             task.notifiedEnd = true;
+                            updated = true;
                         }
                     }
                 });
-            }, 30000); // فحص كل 30 ثانية
+
+                if (updated) {
+                    saveTasks();
+                    renderTaskList();
+                }
+            };
+
+            checkAndTick();
+            clockTimer = setInterval(checkAndTick, 10000); // فحص مستمر كل 10 ثوانٍ
         }
 
-        function showToast(message, isSuccess) {
-            const toast = document.getElementById('toastMessage');
-            toast.innerText = message;
-            toast.style.borderColor = isSuccess ? 'var(--secondary)' : 'var(--primary)';
-            toast.classList.add('show');
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 4000);
+        let toastTimeout = null;
+        function showToast(message, title = 'إشعار جامعي', icon = '🔔') {
+            const toast = document.getElementById('toastBox');
+            const toastTitle = document.getElementById('toastTitle');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastTitle.innerText = title;
+            toastMessage.innerText = message;
+            toastIcon.innerText = icon;
+
+            toast.classList.remove('opacity-0', 'translate-y-8', 'pointer-events-none');
+            toast.classList.add('opacity-100', 'translate-y-0');
+
+            if (toastTimeout) clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'translate-y-8', 'pointer-events-none');
+            }, 4500);
         }
     </script>
 </body>
